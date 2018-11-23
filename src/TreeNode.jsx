@@ -47,6 +47,7 @@ class TreeNode extends React.Component {
     disableCheckbox: PropTypes.bool,
     icon: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
     switcherIcon: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    as: PropTypes.any,
   };
 
   static contextTypes = nodeContextTypes;
@@ -369,9 +370,16 @@ class TreeNode extends React.Component {
   // Icon + Title
   renderSelector = () => {
     const { dragNodeHighlight } = this.state;
-    const { title, selected, icon, loading } = this.props;
+    const { title, selected, icon, loading, as: Component = "span" } = this.props;
     const { rcTree: { prefixCls, showIcon, icon: treeIcon, draggable, loadData } } = this.context;
     const disabled = this.isDisabled();
+    
+    const extraProps = {};
+    Object.keys(this.props).forEach(key => {
+      if (!TreeNode.propTypes.hasOwnProperty(key)) {
+        extraProps[key] = this.props[key];
+      }
+    });
 
     const wrapClass = `${prefixCls}-node-content-wrapper`;
 
@@ -402,7 +410,7 @@ class TreeNode extends React.Component {
     const $title = <span className={`${prefixCls}-title`}>{title}</span>;
 
     return (
-      <span
+      <Component
         ref={this.setSelectHandle}
         title={typeof title === 'string' ? title : ''}
         className={classNames(
@@ -413,6 +421,8 @@ class TreeNode extends React.Component {
         )}
         draggable={(!disabled && draggable) || undefined}
         aria-grabbed={(!disabled && draggable) || undefined}
+        
+        {...extraProps}
 
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
@@ -422,7 +432,7 @@ class TreeNode extends React.Component {
         onDragStart={draggable ? this.onDragStart : undefined}
       >
         {$icon}{$title}
-      </span>
+      </Component>
     );
   };
 
